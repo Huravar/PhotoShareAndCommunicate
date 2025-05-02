@@ -79,13 +79,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "code\",\"message\",\"token\"}",
+                        "description": "code\",\"message\",\"id\",\"token\"}",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "code\",\"message\",\"token\"}",
+                        "description": "code\",\"message\",\"id\",\"token\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -144,6 +144,162 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "code\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/upload_self-introduce": {
+            "post": {
+                "description": "用户更新自我介绍信息接口（需Token认证）",
+                "tags": [
+                    "User Home Message"
+                ],
+                "summary": "更新用户自我介绍",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户自我介绍内容",
+                        "name": "selfIntroduce",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\", \"id\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "code\", \"id\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "code\", \"id\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/upload_user-email": {
+            "post": {
+                "description": "用户更新用户邮箱接口（需Token认证）",
+                "tags": [
+                    "user management"
+                ],
+                "summary": "更新用户邮箱",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\", \"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "code\", \"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "code\", \"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/upload_user-phone": {
+            "post": {
+                "description": "用户更新用户电话号接口（需Token认证）",
+                "tags": [
+                    "user management"
+                ],
+                "summary": "更新用户电话号",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户电话号",
+                        "name": "phone",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\", \"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "code\", \"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "code\", \"message\"}",
                         "schema": {
                             "type": "string"
                         }

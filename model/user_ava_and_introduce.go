@@ -35,3 +35,11 @@ func UpdateAvaPathById(PUserId uint, AvaPath string) error {
 	}
 	return nil
 }
+
+func UpdateSlfIntroduceById(PUserId uint, PSlfIntroduce string) error {
+	IdbResult := utils.DB.Model(&UserHomePageInfo{}).Where("user_id=?", PUserId).Update("self_introduce", PSlfIntroduce)
+	if IdbResult.RowsAffected == 0 {
+		return fmt.Errorf("更新头像路径失败！")
+	}
+	return nil
+}

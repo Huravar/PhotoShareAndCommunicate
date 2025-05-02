@@ -43,11 +43,11 @@ paths:
         type: string
       responses:
         "200":
-          description: code","message","token"}
+          description: code","message","id","token"}
           schema:
             type: string
         "400":
-          description: code","message","token"}
+          description: code","message","id","token"}
           schema:
             type: string
       summary: login in user
@@ -92,4 +92,109 @@ paths:
       summary: 上传用户头像
       tags:
       - User Home Message
+  /user/upload_self-introduce:
+    post:
+      description: 用户更新自我介绍信息接口（需Token认证）
+      parameters:
+      - description: 用户自我介绍内容
+        in: formData
+        name: selfIntroduce
+        required: true
+        type: string
+      - description: 用户id
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: code", "id","message"}
+          schema:
+            type: string
+        "400":
+          description: code", "id","message"}
+          schema:
+            type: string
+        "500":
+          description: code", "id","message"}
+          schema:
+            type: string
+      summary: 更新用户自我介绍
+      tags:
+      - User Home Message
+  /user/upload_user-email:
+    post:
+      description: 用户更新用户邮箱接口（需Token认证）
+      parameters:
+      - description: 用户邮箱
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: 用户id
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: code", "message"}
+          schema:
+            type: string
+        "400":
+          description: code", "message"}
+          schema:
+            type: string
+        "500":
+          description: code", "message"}
+          schema:
+            type: string
+      summary: 更新用户邮箱
+      tags:
+      - user management
+  /user/upload_user-phone:
+    post:
+      description: 用户更新用户电话号接口（需Token认证）
+      parameters:
+      - description: 用户电话号
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: 用户id
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: code", "message"}
+          schema:
+            type: string
+        "400":
+          description: code", "message"}
+          schema:
+            type: string
+        "500":
+          description: code", "message"}
+          schema:
+            type: string
+      summary: 更新用户电话号
+      tags:
+      - user management
 swagger: "2.0"
