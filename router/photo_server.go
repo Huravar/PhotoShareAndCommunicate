@@ -19,5 +19,6 @@ func Router() *gin.Engine {
 	r.POST("/user/upload_self-introduce", service.UploadSelfIntroduce)
 	r.POST("/user/upload_user-email", service.UploadUserEmail)
 	r.POST("/user/upload_user-phone", service.UploadUserPhone)
+	r.POST("/api/photo/upload", service.UploadPhoto)
 	return r
 }

@@ -28,31 +28,17 @@ import (
 // @Failure 500 {string} json{"code","message"}
 // @Router /user/upload-avatar [post]
 func UploadAvatars(c *gin.Context) {
-	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	IUserTokenBasicInfo, err := VerifyToken(c)
 	if err != nil {
 		return
 	}
-	const MaxSIze = 30 << 20
-	if err := c.Request.ParseMultipartForm(MaxSIze); err != nil {
-		log.Println("图片尺寸过大！", err)
-		c.JSON(400, gin.H{"code": -1, //图片尺寸过大！
-			"message": "图片尺寸过大！"})
-	}
-	ItemAvatar, err := c.FormFile("avatar")
+	ItemAvatar, _, err := picture_handle.CommonPhotoDeal(c, "./user_static_info/"+IUserTokenBasicInfo.UserId+"/avatars")
 	if err != nil {
-		log.Println("未找到头像文件", err)
-		c.JSON(http.StatusBadRequest, gin.H{"code": 0, "message": "未找到头像文件"})
 		return
 	}
-
-	if !picture_handle.IsImage(ItemAvatar) {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "message": "仅支持JPEG/PNG图片"})
-		return
-	}
-	err1 := user_static_info.AddFileDir("./user_static_info/" + ItemUserTokenBasicInfo.UserId + "/avatars")
-	IfilePath := "./user_static_info/" + ItemUserTokenBasicInfo.UserId + "/avatars/" + generateFilename(ItemAvatar.Filename)
-	UpdataOrCreateAvatar(ItemUserTokenBasicInfo, IfilePath)
-	if err := user_static_info.AddFileByGin(c, ItemAvatar, IfilePath); err != nil || err1 != nil {
+	IfilePath := "./user_static_info/" + IUserTokenBasicInfo.UserId + "/avatars/" + generateFilename(ItemAvatar.Filename)
+	UpdataOrCreateAvatar(IUserTokenBasicInfo, IfilePath)
+	if err := user_static_info.AddFileByGin(c, ItemAvatar, IfilePath); err != nil {
 		log.Println("保存头像失败", err)
 		c.JSON(500, gin.H{"code": 2, "message": "保存头像失败"})
 	}
