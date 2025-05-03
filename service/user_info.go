@@ -32,7 +32,7 @@ func UploadAvatars(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	ItemAvatar, _, err := picture_handle.CommonPhotoDeal(c, "./user_static_info/"+IUserTokenBasicInfo.UserId+"/avatars")
+	ItemAvatar, _, err := picture_handle.CommonPhotoDeal(c, "avatar", "./user_static_info/"+IUserTokenBasicInfo.UserId+"/avatars")
 	if err != nil {
 		return
 	}

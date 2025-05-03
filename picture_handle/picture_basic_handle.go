@@ -24,8 +24,8 @@ func IsImage(PImageFile *multipart.FileHeader) (string, bool) {
 	return mimeType, strings.HasPrefix(mimeType, "image/")
 }
 
-func CommonPhotoDeal(c *gin.Context, PFilePath string) (*multipart.FileHeader, string, error) {
-	Iphoto, err := c.FormFile("iphoto")
+func CommonPhotoDeal(c *gin.Context, PRequestParam, PFilePath string) (*multipart.FileHeader, string, error) {
+	Iphoto, err := c.FormFile(PRequestParam)
 	if err != nil {
 		log.Println("图片文件为空！", err)
 		c.JSON(400, gin.H{"code": -1, "message": "图片文件为空！"})

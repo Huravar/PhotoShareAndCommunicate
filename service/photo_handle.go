@@ -29,7 +29,7 @@ func UploadPhoto(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	IPhoto, IPhotoType, err := picture_handle.CommonPhotoDeal(c, "./user_static_info/"+IUserTokenBasicInfo.UserId+"/pictures")
+	IPhoto, IPhotoType, err := picture_handle.CommonPhotoDeal(c, "photo", "./user_static_info/"+IUserTokenBasicInfo.UserId+"/pictures")
 	if err != nil {
 		return
 	}
