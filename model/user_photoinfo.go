@@ -46,8 +46,9 @@ func FindUserPhotoInfoByPhotoName(PUserId uint, PPhotoName string) (UserPhotoInf
 	return IUserPhotoInfo, IdbResult.RowsAffected
 }
 
-func DeleteUserPhotoInfoByPhotoName(POriginalName string) error {
-	IdbResult := utils.DB.Model(&UserPhotoInfo{}).Where("original_name=?", POriginalName).Unscoped().Delete(&UserPhotoInfo{})
+func DeleteUserPhotoInfoByPhotoName(PUserId uint, POriginalName string) error {
+	IdbResult := utils.DB.Model(&UserPhotoInfo{}).Where("original_name=?", POriginalName).
+		Where("user_id=?", PUserId).Unscoped().Delete(&UserPhotoInfo{})
 	if IdbResult.RowsAffected == 0 {
 		return fmt.Errorf("%v删除失败！", POriginalName)
 	}

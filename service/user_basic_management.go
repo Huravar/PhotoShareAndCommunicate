@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"photo_service/crypt"
+	"photo_service/gadgets"
 	"photo_service/model"
 	"photo_service/utils"
 	"strconv"
@@ -263,4 +264,31 @@ func UploadUserEmail(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 1, "message": "更新邮箱号码成功！",
 	})
+}
+
+// SearchUserBasicInfo
+// @Summary 获取用户基本信息
+// @Description 获取用户基本信息（包括用户名、手机号和邮箱）
+// @Tags user management
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id     formData string true "用户id"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /user/download_user-basic-message [post]
+func SearchUserBasicInfo(c *gin.Context) {
+	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IBasicUserInformation, INum := model.FindUserById(gadgets.StringToUint(ItemUserTokenBasicInfo.UserId))
+	if INum == 0 {
+		log.Println(ItemUserTokenBasicInfo.UserId, "没有BasicUserInformation记录！")
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "没有BasicUserInformation记录！", "UserName": "",
+			"Phone": "", "Email": ""})
+		return
+	}
+	c.JSON(200, gin.H{"code": -1, "message": "查询成功！", "UserName": IBasicUserInformation.UserName,
+		"Phone": IBasicUserInformation.Phone, "Email": IBasicUserInformation.Email})
 }

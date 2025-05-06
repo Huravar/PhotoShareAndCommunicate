@@ -13,7 +13,6 @@ type BasicUserInformation struct {
 	PassWord   string //DBName: pass_word
 	Phone      string //DBName: phone
 	Email      string //DBName: email
-	Avatar     string //DBName: avatar 头像
 	Identity   uint   //DBName: identity 0：普通用户，1：管理员，2：网站拥有者
 
 }

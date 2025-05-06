@@ -2,12 +2,15 @@ package service
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"photo_service/crypt"
+	"photo_service/gadgets"
 	"photo_service/model"
 	"photo_service/picture_handle"
 	"photo_service/user_static_info"
@@ -131,4 +134,38 @@ func UpdateOrCreateSelfIntroduce(PUserTokenBasicInfo crypt.UserTokenBasicInfo, P
 		}
 	}
 	return nil
+}
+
+// SearchUserHomePageInfo
+// @Summary 获取用户主页信息
+// @Description 获取当前登录用户的主页信息（包括用户名、头像和自我介绍）
+// @Tags User Home Message
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id     formData string true "用户id"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /user/download_user-homepage-message [post]
+func SearchUserHomePageInfo(c *gin.Context) {
+	IUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IUserHomePageInfo, INum := model.FindUserHomePageInfoByUserId(gadgets.StringToUint(IUserTokenBasicInfo.UserId))
+	if INum == 0 {
+		log.Println(IUserTokenBasicInfo.UserId, "没有UserHomePageInfo记录！")
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "没有UserHomePageInfo记录！", "UserName": "",
+			"Avatar": "", "SelfIntroduce": ""})
+		return
+	}
+	IByteImage, err := os.ReadFile(IUserHomePageInfo.AvatarPath)
+	if err != nil {
+		log.Println("打开文件失败！", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 0, "message": "<UNK>", "UserName": "", "Avatar": "", "SelfIntroduce": ""})
+		return
+	}
+	c.JSON(200, gin.H{"code": 1, "message": "查询成功", "UserName": IUserHomePageInfo.UserName,
+		"Avatar": base64.StdEncoding.EncodeToString(IByteImage), "SelfIntroduce": IUserHomePageInfo.SelfIntroduce})
+	return
 }
