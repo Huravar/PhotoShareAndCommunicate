@@ -1,6 +1,7 @@
 package model
 
 import (
+	"log"
 	"photo_service/utils"
 
 	"gorm.io/gorm"
@@ -12,7 +13,6 @@ type BasicUserInformation struct {
 	PassWord   string //DBName: pass_word
 	Phone      string //DBName: phone
 	Email      string //DBName: email
-	Avatar     string //DBName: avatar 头像
 	Identity   uint   //DBName: identity 0：普通用户，1：管理员，2：网站拥有者
 
 }
@@ -53,4 +53,22 @@ func FindUserByName(name string) (BasicUserInformation, int64) {
 
 func AddUserRecord(User BasicUserInformation) {
 	utils.DB.Model(&BasicUserInformation{}).Create(&User)
+}
+
+func UpdatePhoneById(id uint, phone string) error {
+	IdbResult := utils.DB.Model(&BasicUserInformation{}).Where("id = ?", id).Update("phone", phone)
+	if IdbResult.RowsAffected == 0 {
+		log.Println("更新用户电话号失败")
+		return IdbResult.Error
+	}
+	return nil
+}
+
+func UpdateEmailById(id uint, email string) error {
+	IdbResult := utils.DB.Model(&BasicUserInformation{}).Where("id = ?", id).Update("email", email)
+	if IdbResult.RowsAffected == 0 {
+		log.Println("更新邮箱号号失败")
+		return IdbResult.Error
+	}
+	return nil
 }

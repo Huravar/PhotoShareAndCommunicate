@@ -11,9 +11,11 @@
 # Test binary, built with `go test -c`
 *.test
 test
+config.yaml
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
+1
+*.rdb
 # Dependency directories (remove the comment below to include it)
 # vendor/
 

@@ -2,12 +2,15 @@ package service
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"photo_service/crypt"
+	"photo_service/gadgets"
 	"photo_service/model"
 	"photo_service/picture_handle"
 	"photo_service/user_static_info"
@@ -28,31 +31,17 @@ import (
 // @Failure 500 {string} json{"code","message"}
 // @Router /user/upload-avatar [post]
 func UploadAvatars(c *gin.Context) {
-	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	IUserTokenBasicInfo, err := VerifyToken(c)
 	if err != nil {
 		return
 	}
-	const MaxSIze = 30 << 20
-	if err := c.Request.ParseMultipartForm(MaxSIze); err != nil {
-		log.Println("图片尺寸过大！", err)
-		c.JSON(400, gin.H{"code": -1, //图片尺寸过大！
-			"message": "图片尺寸过大！"})
-	}
-	ItemAvatar, err := c.FormFile("avatar")
+	ItemAvatar, _, err := picture_handle.CommonPhotoDeal(c, "avatar", "./user_static_info/"+IUserTokenBasicInfo.UserId+"/avatars")
 	if err != nil {
-		log.Println("未找到头像文件", err)
-		c.JSON(http.StatusBadRequest, gin.H{"code": 0, "message": "未找到头像文件"})
 		return
 	}
-
-	if !picture_handle.IsImage(ItemAvatar) {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "message": "仅支持JPEG/PNG图片"})
-		return
-	}
-	err1 := user_static_info.AddFileDir("./user_static_info/" + ItemUserTokenBasicInfo.UserId + "/avatars")
-	IfilePath := "./user_static_info/" + ItemUserTokenBasicInfo.UserId + "/avatars/" + generateFilename(ItemAvatar.Filename)
-	UpdataOrCreateAvatar(ItemUserTokenBasicInfo, IfilePath)
-	if err := user_static_info.AddFileByGin(c, ItemAvatar, IfilePath); err != nil || err1 != nil {
+	IfilePath := "./user_static_info/" + IUserTokenBasicInfo.UserId + "/avatars/" + generateFilename(ItemAvatar.Filename)
+	UpdataOrCreateAvatar(IUserTokenBasicInfo, IfilePath)
+	if err := user_static_info.AddFileByGin(c, ItemAvatar, IfilePath); err != nil {
 		log.Println("保存头像失败", err)
 		c.JSON(500, gin.H{"code": 2, "message": "保存头像失败"})
 	}
@@ -94,10 +83,89 @@ func UpdataOrCreateAvatar(PUserTokenBasicInfo crypt.UserTokenBasicInfo, PAvaDir 
 
 }
 
-//func UploadSelfIntroduce(c *gin.Context) {
-//	ItemUserTokenBasicInfo, err := VerifyToken(c)
-//	if err != nil {
-//
-//	}
-//
-//}
+// UploadSelfIntroduce
+// @Summary 更新用户自我介绍
+// @Description 用户更新自我介绍信息接口（需Token认证）
+// @Tags User Home Message
+// @Param selfIntroduce formData string true "用户自我介绍内容"
+// @Param id     formData string true "用户id"
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Success 200 {string} json{"code", "id","message"}
+// @Failure 400 {string} json{"code", "id","message"}
+// @Failure 500 {string} json{"code", "id","message"}
+// @Router /user/upload_self-introduce [post]
+func UploadSelfIntroduce(c *gin.Context) {
+	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	ISelfIntroduce, err1 := c.GetPostForm("selfIntroduce")
+	if !err1 {
+		log.Println("缺少请求参数")
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "id": ItemUserTokenBasicInfo.UserId, "message": "缺少请求参数"})
+		return
+	}
+	err = UpdateOrCreateSelfIntroduce(ItemUserTokenBasicInfo, ISelfIntroduce)
+	if err != nil {
+		log.Println("<UNK>", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 0, "id": ItemUserTokenBasicInfo.UserId, "message": "服务器错误！"})
+		return
+	}
+	c.JSON(200, gin.H{"code": 1, "id": ItemUserTokenBasicInfo.UserId, "message": "更新自我介绍成功！"})
+	return
+}
+
+func UpdateOrCreateSelfIntroduce(PUserTokenBasicInfo crypt.UserTokenBasicInfo, PSelfIntroduce string) error {
+	IUserId, _ := strconv.Atoi(PUserTokenBasicInfo.UserId)
+	_, Num := model.FindUserHomePageInfoByUserId(uint(IUserId))
+	if Num == 0 {
+		model.CreateUserHomePageInfo(model.UserHomePageInfo{
+			UserID:        uint(IUserId),
+			UserName:      PUserTokenBasicInfo.UserName,
+			SelfIntroduce: PSelfIntroduce,
+		})
+		return nil
+	}
+	if Num == 1 {
+		err := model.UpdateSlfIntroduceById(uint(IUserId), PSelfIntroduce)
+		if err != nil {
+			log.Println("更新数据库自我介绍失败", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// SearchUserHomePageInfo
+// @Summary 获取用户主页信息
+// @Description 获取当前登录用户的主页信息（包括用户名、头像和自我介绍）
+// @Tags User Home Message
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id     formData string true "用户id"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /user/download_user-homepage-message [post]
+func SearchUserHomePageInfo(c *gin.Context) {
+	IUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IUserHomePageInfo, INum := model.FindUserHomePageInfoByUserId(gadgets.StringToUint(IUserTokenBasicInfo.UserId))
+	if INum == 0 {
+		log.Println(IUserTokenBasicInfo.UserId, "没有UserHomePageInfo记录！")
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "没有UserHomePageInfo记录！", "UserName": "",
+			"Avatar": "", "SelfIntroduce": ""})
+		return
+	}
+	IByteImage, err := os.ReadFile(IUserHomePageInfo.AvatarPath)
+	if err != nil {
+		log.Println("打开文件失败！", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 0, "message": "<UNK>", "UserName": "", "Avatar": "", "SelfIntroduce": ""})
+		return
+	}
+	c.JSON(200, gin.H{"code": 1, "message": "查询成功", "UserName": IUserHomePageInfo.UserName,
+		"Avatar": base64.StdEncoding.EncodeToString(IByteImage), "SelfIntroduce": IUserHomePageInfo.SelfIntroduce})
+	return
+}

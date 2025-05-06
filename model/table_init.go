@@ -11,6 +11,10 @@ func TableInit() error {
 	if err != nil {
 		return fmt.Errorf("create BasicUserInformation table failed: %v", err)
 	}
+	err = utils.DB.AutoMigrate(&UserPhotoInfo{})
+	if err != nil {
+		return fmt.Errorf("create UserPhotoInfo table failed: %v", err)
+	}
 	err = utils.DB.AutoMigrate(&UserNetwork{})
 	if err != nil {
 		return fmt.Errorf("create UserNetwork table failed: %v", err)

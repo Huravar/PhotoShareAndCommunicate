@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"photo_service/crypt"
+	"photo_service/gadgets"
 	"photo_service/model"
 	"photo_service/utils"
 	"strconv"
@@ -189,4 +190,105 @@ func VerifyToken(c *gin.Context) (crypt.UserTokenBasicInfo, error) {
 		return crypt.UserTokenBasicInfo{}, errors.New("token验证失败请重新登录或检查token值")
 	}
 	return ItemUserTokenBasicInfo, nil
+}
+
+// UploadUserPhone
+// @Summary 更新用户电话号
+// @Description 用户更新用户电话号接口（需Token认证）
+// @Tags user management
+// @Param phone formData string true "用户电话号"
+// @Param id     formData string true "用户id"
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Success 200 {string} json{"code", "message"}
+// @Failure 400 {string} json{"code", "message"}
+// @Failure 500 {string} json{"code", "message"}
+// @Router /user/upload_user-phone [post]
+func UploadUserPhone(c *gin.Context) {
+	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IPhone, err1 := c.GetPostForm("phone")
+	if !err1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1, "message": "请填写手机号后请求！",
+		})
+		return
+	}
+	IUserId, _ := strconv.Atoi(ItemUserTokenBasicInfo.UserId)
+	err = model.UpdatePhoneById(uint(IUserId), IPhone)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 0, "message": "更新电话号码失败",
+		})
+		log.Println(IUserId, "更新电话号码失败", err)
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 1, "message": "更新电话号码成功！",
+	})
+}
+
+// UploadUserEmail
+// @Summary 更新用户邮箱
+// @Description 用户更新用户邮箱接口（需Token认证）
+// @Tags user management
+// @Param email formData string true "用户邮箱"
+// @Param id     formData string true "用户id"
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Success 200 {string} json{"code", "message"}
+// @Failure 400 {string} json{"code", "message"}
+// @Failure 500 {string} json{"code", "message"}
+// @Router /user/upload_user-email [post]
+func UploadUserEmail(c *gin.Context) {
+	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IEmail, err1 := c.GetPostForm("email")
+	if !err1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1, "message": "请填写邮箱号后请求！",
+		})
+		return
+	}
+	IUserId, _ := strconv.Atoi(ItemUserTokenBasicInfo.UserId)
+	err = model.UpdateEmailById(uint(IUserId), IEmail)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 0, "message": "更新邮箱号码失败",
+		})
+		log.Println(IUserId, "更新邮箱号码失败", err)
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 1, "message": "更新邮箱号码成功！",
+	})
+}
+
+// SearchUserBasicInfo
+// @Summary 获取用户基本信息
+// @Description 获取用户基本信息（包括用户名、手机号和邮箱）
+// @Tags user management
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id     formData string true "用户id"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /user/download_user-basic-message [post]
+func SearchUserBasicInfo(c *gin.Context) {
+	ItemUserTokenBasicInfo, err := VerifyToken(c)
+	if err != nil {
+		return
+	}
+	IBasicUserInformation, INum := model.FindUserById(gadgets.StringToUint(ItemUserTokenBasicInfo.UserId))
+	if INum == 0 {
+		log.Println(ItemUserTokenBasicInfo.UserId, "没有BasicUserInformation记录！")
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "没有BasicUserInformation记录！", "UserName": "",
+			"Phone": "", "Email": ""})
+		return
+	}
+	c.JSON(200, gin.H{"code": -1, "message": "查询成功！", "UserName": IBasicUserInformation.UserName,
+		"Phone": IBasicUserInformation.Phone, "Email": IBasicUserInformation.Email})
 }
