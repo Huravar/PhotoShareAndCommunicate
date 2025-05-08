@@ -14,6 +14,7 @@ type UserPhotoInfo struct {
 	StoragePath  string //DBName:storage_path
 	FileSize     int64  //DBName:file_size
 	FileType     string //DBName:file_type
+	HitNum       uint   //DBName:hit_num
 	Description  string //DBName:description
 }
 

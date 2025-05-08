@@ -167,11 +167,15 @@ func CrateOrUpdateNetworkInfoForLogin(User model.BasicUserInformation, TokenKey 
 func VerifyToken(c *gin.Context) (crypt.UserTokenBasicInfo, error) {
 	ItemUserId, err := c.GetPostForm("id")
 	if !err {
-		log.Println("获取用户id失败", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": -2, "message": "获取用户id失败",
-		})
-		return crypt.UserTokenBasicInfo{}, errors.New("获取用户id失败")
+		var err1 bool
+		ItemUserId, err1 = c.GetQuery("id")
+		if !err1 {
+			log.Println("获取用户id失败", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"code": -2, "message": "获取用户id失败",
+			})
+			return crypt.UserTokenBasicInfo{}, errors.New("获取用户id失败")
+		}
 	}
 	ItemTokenKey, err2 := utils.Red.Get(context.Background(), ItemUserId).Result()
 	if err2 != nil {
@@ -181,7 +185,11 @@ func VerifyToken(c *gin.Context) (crypt.UserTokenBasicInfo, error) {
 		})
 		return crypt.UserTokenBasicInfo{}, errors.New("登录时间过期请重新登录")
 	}
-	ItemUserTokenBasicInfo, err3 := crypt.ParasedAndVerify(c.GetHeader("Authorization"), ItemTokenKey)
+	IAuthorization, err := c.GetQuery("Authorization")
+	if !err {
+		IAuthorization = c.GetHeader("Authorization")
+	}
+	ItemUserTokenBasicInfo, err3 := crypt.ParasedAndVerify(IAuthorization, ItemTokenKey)
 	if err3 != nil {
 		log.Println(ItemUserId, "token验证失败请重新登录或检查token值", err)
 		c.JSON(http.StatusUnauthorized, gin.H{
