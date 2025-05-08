@@ -23,6 +23,6 @@ func Router() *gin.Engine {
 	r.POST("/user/download_user-homepage-message", service.SearchUserHomePageInfo)
 	r.POST("/user/download_user-basic-message", service.SearchUserBasicInfo)
 	r.POST("/api/photo/delete", service.DeleteUserPhoto)
-	
+	r.GET("/ws", service.UserBasicCommunicate)
 	return r
 }

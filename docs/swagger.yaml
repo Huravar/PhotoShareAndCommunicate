@@ -359,4 +359,42 @@ paths:
       summary: 更新用户电话号
       tags:
       - user management
+  /ws:
+    get:
+      description: 通过Token验证用户身份，升级为WebSocket连接，用于实时通讯和消息推送
+      parameters:
+      - description: 用户id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: websocket protocol
+        in: header
+        name: Connection
+        required: true
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 建立用户WebSocket长连接
+      tags:
+      - WebSocket communicate
 swagger: "2.0"
