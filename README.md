@@ -5,7 +5,7 @@
 [![Gorm Framework](https://img.shields.io/badge/Gorm-v1.26%2B-blue)](https://gorm.io/)
 [![Redis Framework](https://img.shields.io/badge/Redis-v8.11.5%2B-blue)](https://redis.uptrace.dev/)
 
-一个基于 Go 语言与 Gin 框架的全栈照片分享与社交平台，支持用户上传、管理、以及相互交流。
+一个基于 Go 语言与 Gin 框架的照片分享与社交平台，支持用户上传、管理、以及相互交流。
 
 ---
 
@@ -23,7 +23,6 @@
 - [数据库设计](#数据库设计)
 - [开发指南](#开发指南)
     - [代码结构](#代码结构)
-- [致谢](#致谢)
 
 ## 项目概述
 - **目标**：打造一个高性能、易扩展的照片分享与社交平台

@@ -18,7 +18,6 @@ config.yaml
 *.rdb
 # Dependency directories (remove the comment below to include it)
 # vendor/
-sql
 # Go workspace file
 go.work
 go.work.sum
